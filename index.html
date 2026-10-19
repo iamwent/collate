@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f5f2" />
+    <title>Collate · PDF 页面工具</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside>
+        <a class="brand" href="./" aria-label="Collate 首页"><span class="brand-icon">▤</span>collate<span class="brand-dot">.</span></a>
+        <p class="eyebrow">PDF 页面工作台</p>
+        <div class="sidebar-section">页面操作 <span>06</span></div>
+        <nav aria-label="页面操作">
+          <button data-action="merge"><span>⊕</span>合并 <small>添加 PDF</small></button>
+          <button data-action="split" disabled><span>✂</span>拆分 <small>按范围导出</small></button>
+          <div class="nav-rule"></div>
+          <button data-action="delete" disabled><span>⌫</span>删除</button>
+          <button data-action="rotate" disabled><span>↻</span>旋转 <small>顺时针 90°</small></button>
+          <button data-action="reorder" disabled><span>⇄</span>重排</button>
+          <button data-action="replace" disabled><span>⇆</span>替换</button>
+        </nav>
+        <div class="local-note"><span class="local-dot"></span>文件仅在本机处理<p>整理页面，保留内容。</p></div>
+      </aside>
+      <main>
+        <header><div><span class="eyebrow">WORKSPACE</span><h1>整理每一页<span class="accent">。</span></h1></div><button class="primary" data-action="export" disabled>导出 PDF <span>↗</span></button></header>
+        <section class="document-bar"><div class="document-info"><span class="file-icon">PDF</span><div><h2 id="document-name">还没有打开文件</h2><p id="document-meta">从一个 PDF 开始，也可以一次添加多个文件</p></div></div><button data-action="merge" class="subtle">＋ 添加 PDF</button></section>
+        <div class="workspace-tools"><label class="select-all"><input id="select-all" type="checkbox" disabled />全选<span id="selection-count">0 页</span></label><div class="history"><button data-action="undo" disabled title="撤销（⌘/Ctrl Z）" aria-label="撤销">↶</button><button data-action="redo" disabled title="重做（⌘/Ctrl Shift Z）" aria-label="重做">↷</button><span class="tool-divider"></span><button data-action="clear" class="text-button" disabled>清空工作台</button></div></div>
+        <section id="empty" class="empty"><div class="paper-stack"><div></div><div></div><div><span>PDF</span><i></i><i></i><i></i></div></div><h2>把 PDF 放在这里</h2><p>拖入文件，或点击下方按钮开始整理页面</p><button data-action="merge" class="primary">＋ 选择 PDF 文件</button><p class="empty-hint">支持多个 PDF · 按添加顺序合并</p><div class="feature-tags"><span>合并</span><span>拆分</span><span>删除</span><span>旋转</span><span>重排</span><span>替换</span></div></section>
+        <section id="pages" class="page-grid" aria-label="PDF 页面" hidden></section>
+        <footer><span id="status" role="status" aria-live="polite">准备就绪</span><span>拖动页面调整顺序 · 按住 Shift 连选</span></footer>
+      </main>
+    </div>
+    <input id="file-input" type="file" accept=".pdf,application/pdf" multiple hidden />
+    <dialog id="operation-dialog"><form id="operation-form"><div class="dialog-header"><h2 id="dialog-title"></h2><button type="button" id="close-dialog" aria-label="关闭">×</button></div><p id="dialog-description"></p><label id="range-label" for="range-input">页码范围</label><textarea id="range-input" rows="4" spellcheck="false"></textarea><p id="dialog-error" role="alert"></p><div class="dialog-footer"><button type="button" id="split-each" hidden>每页一份</button><button type="button" id="cancel-dialog">取消</button><button class="primary" id="confirm-dialog" type="submit">确认</button></div></form></dialog>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+# Dependencies and generated application files
+node_modules/
+/dist/
+/build/
+/.mygo/
+mygo_windows_*.syso
+*.tsbuildinfo
+
+# Test output and local caches
+/coverage/
+/.cache/
+
+# Local PDF exports and scratch files
+/exports/
+/tmp/
+*.log
+*.tmp
+
+# Local environment (keep shareable examples)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# macOS and editor temporary files
+.DS_Store
+.AppleDouble/
+._*
+*.swp
+*.swo
+*~
