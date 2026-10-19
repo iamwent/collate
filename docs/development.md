@@ -8,6 +8,7 @@
 bun install --frozen-lockfile
 bun run dev           # MyGo 桌面开发
 bun run dev:web       # 浏览器开发预览
+bun run preview:web   # 预览 dist 中的生产构建
 bun run generate      # Go 服务变更后重新生成 src/mygo.ts
 bun test              # 六项操作的导出/重读与边界测试
 bun run build:web     # TypeScript 检查与前端打包
@@ -42,7 +43,7 @@ TypeScript 检查、前端生产构建、Go 测试命令和 MyGo vet 已通过�
 
 | 事件 | 自动执行 | 发布产物 |
 | --- | --- | --- |
-| push 到 `main` | macOS、Windows 分别安装锁定依赖，检查 Go 依赖和生成绑定，运行 Bun/Go 测试、MyGo vet、前端构建及原生编译 | 不打安装包，不创建 Release |
+| push 到 `main` | macOS、Windows 分别运行现有测试和编译检查；Linux 独立验证纯浏览器测试和子路径构建 | 不打桌面安装包，不创建 Release；全部检查通过后更新 GitHub Pages |
 | push tag | 校验版本、重复执行两端 CI，成功后构建 macOS 与 Windows 安装包，统一发布到该 tag 的 GitHub Release | macOS 通用 DMG、完整 `.app` 的 ZIP、Windows x64 安装包、SHA-256 清单 |
 
 配置分别位于 [CI](../.github/workflows/ci.yml) 和 [Release](../.github/workflows/release.yml)。Release 不提供手动触发或普通分支触发入口。任一平台的检查、打包、应用启动或 Windows 安装冒烟测试失败，都不会公开新 Release；上传过程中失败则保留草稿供排查。重跑可恢复同 tag 草稿，但不会覆盖已经公开的 Release。
@@ -73,3 +74,36 @@ PDF.js 使用带兼容性补丁的 legacy 构建，以适配系统 WebKit；macO
 macOS 应用目前只有 ad-hoc 签名，没有 Apple 公证；Windows 外层安装包及应用目前未作发布者签名。因此，**不能保证从互联网下载后首次打开无安全提示**：macOS 可能被 Gatekeeper 阻止，Windows 可能显示未知发布者或 SmartScreen 提示。完整依赖打包不能替代代码签名。未来取得发布凭据后，应通过 GitHub Secrets 接入 Developer ID 签名与公证、Windows 代码签名，并验证真实下载与首次启动；不要把证书或密码提交到仓库。
 
 Release 使用的固定安装说明见 [release-notes.md](release-notes.md)，会与 GitHub 自动生成的变更说明一起展示。
+
+
+## GitHub Pages 网页版
+
+桌面版和网页版共用页面模型、预览与六项编辑操作。网页版只需构建 Vite 静态资源，无需运行 Go 服务或部署后端；MyGo 原生保存接口仅在桌面窗口中调用，在浏览器中导出为本地下载。
+
+### 首次启用
+
+1. 将包含工作流的代码提交并推送到 GitHub 的 `main` 分支。
+2. 在仓库 **Settings → Pages → Build and deployment → Source** 中选择 **GitHub Actions**（可在推送前设置）。
+3. 等待 `CI` 成功，然后由 `Deploy browser app` 工作流自动构建并部署站点。默认网址为 <https://iamwent.github.io/collate/>。
+
+部署工作流见 [pages.yml](../.github/workflows/pages.yml)。它只接受同仓库 `main` 分支 push 所触发的成功 CI，检出对应的已验证提交后重新构建，不部署 tag 或 PR 的产物。`actions/configure-pages` 提供部署路径，`COLLATE_WEB_BASE` 将该路径传给 Vite；仓库子路径与自定义域名均使用同一套资源路径处理。Pages 构建只需读取 Pages 元数据，只有部署 job 授予 `pages: write` 和 `id-token: write`，不需要额外 Secrets。
+
+### 本地验证与路径
+
+```sh
+# 模拟 GitHub Pages 的 /collate/ 路径（macOS/Linux shell）。
+COLLATE_WEB_BASE=/collate/ bun run build:web
+COLLATE_WEB_BASE=/collate/ bun run preview:web
+# 打开终端显示的预览地址下的 /collate/。
+
+# 重新生成桌面版使用的根路径资源。
+bun run build:web
+```
+
+`COLLATE_WEB_BASE` 默认是 `/`，桌面打包保持使用根路径。PDF.js 的 worker 由 Vite 打包，CMap、字体、ICC 与 WASM 资源复制到 `dist/pdf-assets/`，浏览器通过构建时的 base URL 访问，不从第三方 CDN 获取。
+
+### 本地数据和运行范围
+
+网页使用文件选择器或拖放读取用户选择的 PDF，文件内容、编辑状态和撤销历史只在浏览器内存中处理；不上传文件，不使用服务器 API，也不持久保存工作台。导出通过浏览器下载 PDF 或 ZIP。关闭或刷新页面前请导出结果；浏览器可能按自身设置询问下载位置。
+
+首次打开需要网络加载静态程序资源；未配置 Service Worker 或离线缓存，不能保证断网后重新打开网页可用。数据本地处理不等于无需网络加载程序。建议使用最新桌面 Chrome、Edge、Firefox 或 Safari 18+；网页版本不受桌面安装包代码签名与公证的限制。

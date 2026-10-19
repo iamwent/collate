@@ -9,6 +9,7 @@
     "generate": "mygo generate",
     "dev:web": "vite",
     "build:web": "tsc --noEmit && vite build",
+    "preview:web": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },

@@ -16,6 +16,8 @@ const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>
 const input = $<HTMLInputElement>("#file-input");
 const grid = $("#pages");
 const dialog = $<HTMLDialogElement>("#operation-dialog");
+// All PDF.js resources follow the deployment base, including /collate/ on Pages.
+const pdfAssetsURL = new URL(`${import.meta.env.BASE_URL}pdf-assets/`, document.baseURI);
 const rangeInput = $<HTMLTextAreaElement>("#range-input");
 let pages: Page[] = [];
 let selected = new Set<string>();
@@ -108,7 +110,7 @@ const observer = new IntersectionObserver(entries => {
           let document = previews.get(page.source.id);
           if (!document) {
             const { getDocument } = await pdfRenderer();
-            document = getDocument({ data: page.source.bytes.slice(), cMapUrl: "/pdf-assets/cmaps/", cMapPacked: true, standardFontDataUrl: "/pdf-assets/standard_fonts/", wasmUrl: "/pdf-assets/wasm/", iccUrl: "/pdf-assets/iccs/" }).promise;
+            document = getDocument({ data: page.source.bytes.slice(), cMapUrl: new URL("cmaps/", pdfAssetsURL).href, cMapPacked: true, standardFontDataUrl: new URL("standard_fonts/", pdfAssetsURL).href, wasmUrl: new URL("wasm/", pdfAssetsURL).href, iccUrl: new URL("iccs/", pdfAssetsURL).href }).promise;
             previews.set(page.source.id, document);
           }
           const sourcePage = await (await document).getPage(page.index + 1);

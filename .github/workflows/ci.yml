@@ -60,3 +60,19 @@ jobs:
       # Compile only: push to main never makes or publishes installers.
       - name: Compile native application
         run: go build -trimpath -o "$RUNNER_TEMP/collate-check" .
+
+  web:
+    name: Test and build browser app
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - name: Build for a repository subpath without a Go backend
+        env:
+          COLLATE_WEB_BASE: /collate/
+        run: bun run build:web

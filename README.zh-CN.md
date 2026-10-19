@@ -2,7 +2,11 @@
 
 [English](README.md) | 简体中文
 
-基于 [MyGo](https://github.com/egoist/mygo) 构建的本地 PDF 页面编辑工具。
+基于 [MyGo](https://github.com/egoist/mygo) 构建的本地 PDF 页面编辑工具，支持桌面应用和 [GitHub Pages 网页版](https://iamwent.github.io/collate/)。
+
+> **我们不收集任何用户数据。所有 PDF 处理工作都在你的设备本地完成。**
+
+无需注册账号，不上传文件，不使用统计分析或遥测。PDF 内容、文件名和编辑历史均不会发送到服务器。网页版通过网络加载程序的静态资源，编辑和导出操作仍全部在本地完成。
 
 ## 功能
 
@@ -21,8 +25,9 @@
 
 ## 权限和首次运行限制
 
-- **运行要求**：macOS 15 及以上或 Windows x64，无需安装 Go、Bun 或 Node.js。Windows 安装包包含 WebView2 离线安装程序，会在需要时自动安装运行时。
-- **GitHub Actions**：当前配置不要求额外签名 Secrets。只有 Release 发布任务使用内置 `GITHUB_TOKEN` 的 `contents: write` 权限，其余任务仅有仓库只读权限；仓库或组织须允许这些 Actions 权限。
+- **网页版**：使用现代桌面浏览器打开网页并选择本地 PDF，所有编辑均在浏览器内存中完成，结果下载到设备，文件不会上传。关闭或刷新网页会清空工作台，请及时导出。
+- **桌面运行要求**：macOS 15 及以上或 Windows x64，无需安装 Go、Bun 或 Node.js。Windows 安装包包含 WebView2 离线安装程序，会在需要时自动安装运行时。
+- **GitHub Actions**：当前配置不要求额外签名 Secrets。只有 Release 发布任务使用内置 `GITHUB_TOKEN` 的 `contents: write` 权限，Pages 部署任务使用 `pages: write` 和 `id-token: write` 权限，构建任务仅有仓库只读权限；仓库或组织须允许这些 Actions 权限。
 - **macOS**：应用当前仅使用 ad-hoc 签名，未经 Apple 公证，从互联网下载后首次打开可能被 Gatekeeper 阻止。
 - **Windows**：应用及安装包当前没有发布者代码签名，可能显示未知发布者或 SmartScreen 提示。
 
