@@ -1,0 +1,164 @@
+name: Release
+
+on:
+  push:
+    tags: ['**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CGO_ENABLED: '0'
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - name: Validate release tag
+        id: version
+        run: bun scripts/release/version.ts
+
+  checks:
+    needs: version
+    uses: ./.github/workflows/ci.yml
+
+  macos:
+    needs: [version, checks]
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      COLLATE_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Build universal macOS app and disk image
+        run: go run github.com/egoist/mygo/cmd/mygo build -platform darwin/universal
+      - name: Smoke test macOS application startup
+        run: |
+          set -euo pipefail
+          build/darwin-universal/collate.app/Contents/MacOS/collate > "$RUNNER_TEMP/collate-macos.log" 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 10
+          if ! kill -0 "$pid" 2>/dev/null; then
+            cat "$RUNNER_TEMP/collate-macos.log"
+            echo 'Application exited during startup.' >&2
+            exit 1
+          fi
+          kill "$pid"
+          wait "$pid" || true
+          trap - EXIT
+      - name: Verify app and archive with executable permissions
+        run: |
+          set -euo pipefail
+          app=build/darwin-universal/collate.app
+          test -f "$app/Contents/Info.plist"
+          test -x "$app/Contents/MacOS/collate"
+          architectures="$(lipo -archs "$app/Contents/MacOS/collate")"
+          [[ " $architectures " == *" arm64 "* ]]
+          [[ " $architectures " == *" x86_64 "* ]]
+          codesign --verify --deep --strict "$app"
+          mkdir -p release
+          ditto -c -k --sequesterRsrc --keepParent "$app" "release/collate-${COLLATE_VERSION}-macos-universal.zip"
+          cp "build/darwin-universal/collate ${COLLATE_VERSION}.dmg" "release/collate-${COLLATE_VERSION}-macos-universal.dmg"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-macos
+          path: release/*
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+  windows:
+    needs: [version, checks]
+    runs-on: windows-latest
+    timeout-minutes: 40
+    env:
+      COLLATE_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Build Windows application and inner installer
+        run: go run github.com/egoist/mygo/cmd/mygo build -platform windows/amd64
+      - name: Bundle offline WebView2 runtime in final installer
+        shell: pwsh
+        run: ./scripts/release/windows.ps1 -Version $env:COLLATE_VERSION
+      - name: Smoke test final installer and installed application
+        shell: pwsh
+        run: ./scripts/release/test-windows.ps1 -Version $env:COLLATE_VERSION
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: release/*.exe
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+  publish:
+    needs: [version, macos, windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ github.ref_name }}
+      RELEASE_VERSION: ${{ needs.version.outputs.version }}
+      PRERELEASE: ${{ needs.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: release
+      - name: Publish all assets in one release
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "release/collate-${RELEASE_VERSION}-macos-universal.zip"
+          test -s "release/collate-${RELEASE_VERSION}-macos-universal.dmg"
+          test -s "release/collate-${RELEASE_VERSION}-windows-x64-setup.exe"
+          (cd release && sha256sum *.zip *.dmg *.exe > SHA256SUMS.txt)
+          if gh release view "$RELEASE_TAG" --json isDraft > "$RUNNER_TEMP/release.json" 2>/dev/null; then
+            if ! jq -e '.isDraft == true' "$RUNNER_TEMP/release.json" >/dev/null; then
+              echo 'Release is already published; refusing to replace public assets.' >&2
+              exit 1
+            fi
+          else
+            args=(--verify-tag --draft --title "Collate ${RELEASE_TAG}" --notes-file docs/release-notes.md --generate-notes)
+            if [[ "$PRERELEASE" == true ]]; then args+=(--prerelease); fi
+            gh release create "$RELEASE_TAG" "${args[@]}"
+          fi
+          gh release upload "$RELEASE_TAG" release/* --clobber
+          # Keep incomplete uploads in a draft; expose only the complete release.
+          gh release edit "$RELEASE_TAG" --draft=false

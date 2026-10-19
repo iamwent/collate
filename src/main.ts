@@ -1,13 +1,13 @@
 import { isMyGo } from "mygo-runtime";
 import { Files } from "./mygo";
-import type { PDFDocumentProxy } from "pdfjs-dist";
-import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import type { PDFDocumentProxy } from "pdfjs-dist/legacy/build/pdf.mjs";
+import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
 import { zip } from "fflate";
 import { exportPDF, movePages, parseRange, readPDF, reorder, replacePages, type Page } from "./pdf";
 
-let renderer: Promise<typeof import("pdfjs-dist")> | undefined;
+let renderer: Promise<typeof import("pdfjs-dist/legacy/build/pdf.mjs")> | undefined;
 function pdfRenderer() {
-  return renderer ??= import("pdfjs-dist").then(module => {
+  return renderer ??= import("pdfjs-dist/legacy/build/pdf.mjs").then(module => {
     module.GlobalWorkerOptions.workerSrc = workerUrl;
     return module;
   });

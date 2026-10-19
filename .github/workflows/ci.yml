@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  CGO_ENABLED: '0'
+
+jobs:
+  check:
+    name: Test and compile (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - uses: oven-sh/setup-bun@v2
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: Verify Go dependencies
+        run: go mod verify
+      - name: Check generated bindings
+        run: |
+          go run github.com/egoist/mygo/cmd/mygo generate
+          git diff --exit-code -- src/mygo.ts
+      - name: Validate PowerShell release scripts
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem scripts/release/*.ps1 | ForEach-Object {
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$parseErrors) | Out-Null
+            if ($parseErrors) { throw ($parseErrors | Out-String) }
+          }
+      - name: Test PDF operations and release version rules
+        run: bun test
+      - name: Test Go packages
+        run: go test ./...
+      - name: Vet Go and MyGo lifetimes
+        run: go run github.com/egoist/mygo/cmd/mygo vet .
+      - name: Typecheck and build frontend
+        run: bun run build:web
+      # Compile only: push to main never makes or publishes installers.
+      - name: Compile native application
+        run: go build -trimpath -o "$RUNNER_TEMP/collate-check" .
