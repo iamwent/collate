@@ -21,7 +21,7 @@
 
 ## 截图
 
-![Collate PDF 页面工作台](docs/images/screenshot.jpg)
+![Collate macOS 应用首页](docs/images/screenshot.jpg)
 
 ## 权限和首次运行限制
 

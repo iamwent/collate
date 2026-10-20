@@ -21,7 +21,7 @@ Preview page thumbnails, select pages in batches, and undo or redo changes. PDF 
 
 ## Screenshot
 
-![Collate PDF page workspace](docs/images/screenshot.jpg)
+![Collate macOS app home screen](docs/images/screenshot.jpg)
 
 ## Permissions and first-launch limitations
 

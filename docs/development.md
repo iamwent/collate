@@ -121,3 +121,5 @@ bun run build:web
 网页单独使用从原图缩放的 `resources/collate-icon-web.webp`（102×102，约 2.8 KB），覆盖品牌图标 34×34 像素显示尺寸的 3 倍像素密度；浏览器标签页使用 `resources/favicon.png`（32×32 PNG，约 2.4 KB）。品牌图片使用空 `alt`，由品牌链接提供无障碍名称。
 
 MyGo 将 PNG 源图转换为 macOS `.icns` 和 Windows 多尺寸图标，无需手工维护 `.icns` 或 `.ico`。未使用的原始模板图标 `resources/icon.png` 已删除。
+
+README 的中英文版本共用 [`docs/images/screenshot.jpg`](images/screenshot.jpg)，使用用户提供的 macOS 应用首页截图，保留完整标题栏、底部状态栏和原始 2198×1506 像素尺寸，适度压缩为 JPEG，展示当前界面的左上角图标和底部项目链接。更新界面时，应从实际运行的页面重新截图。
