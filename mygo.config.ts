@@ -4,6 +4,7 @@ import { defineConfig } from "mygo-cli";
 export default defineConfig({
   name: "collate",
   identifier: "com.example.collate",
+  icon: "resources/collate-icon.png",
   version: env.COLLATE_VERSION || "0.1.0",
   // PDF.js supports Safari/WebKit 18+ through its compatibility build.
   macos: { minimumSystemVersion: "15.0" },

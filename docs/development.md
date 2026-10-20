@@ -112,3 +112,10 @@ bun run build:web
 ## 项目入口
 
 侧边栏底部保留本地处理说明，并提供低调的单行下划线文字链接 `GitHub Repository`，悬停提示“在 GitHub 查看项目”，指向 `https://github.com/iamwent/collate` 的 GitHub 项目链接。链接使用 `target="_blank"` 和 `rel="noopener noreferrer"`：网页版在新标签页打开，桌面版通过 MyGo 默认的外链行为打开系统浏览器。窄屏布局中同样显示该入口，保留无障碍标签，无需额外网络图标或 Go 服务接口。
+
+
+## 应用图标
+
+当前图标源文件为 [`resources/collate-icon.png`](../resources/collate-icon.png)，通过 `mygo.config.ts` 的 `icon` 字段显式指定，并作为网页版 favicon 使用。原始模板图标 `resources/icon.png` 仅保留作参考，不再用作应用图标。
+
+新图标以深绿底和叠放的浅色纸页表达 PDF 页面整理，使用内置图像生成工具制作；[生成提示词](collate-icon-prompt.txt)保留用于后续迭代。源文件为 1254×1254 的正方形 RGBA PNG，四周透明。MyGo 接受 PNG 源图，打包时自动缩放并生成 macOS `.icns`（最高 1024×1024）和 Windows 图标资源（16、24、32、48、64、128、256 像素）。不需要手工维护 `.icns` 或 `.ico` 文件。
