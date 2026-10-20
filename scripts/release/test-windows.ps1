@@ -1,9 +1,13 @@
-param([Parameter(Mandatory)][string]$Version)
+param(
+    [Parameter(Mandatory)][string]$Version,
+    [ValidateSet('Online', 'Offline')][string]$RuntimeMode = 'Online'
+)
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $project = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$setup = Join-Path $project "release/collate-$Version-windows-x64-setup.exe"
+$suffix = if ($RuntimeMode -eq 'Offline') { '-offline' } else { '' }
+$setup = Join-Path $project "release/collate-$Version-windows-x64-setup$suffix.exe"
 # Exercise /D with spaces, through both installer layers.
 $destination = Join-Path $env:RUNNER_TEMP 'Collate install smoke test'
 $application = $null

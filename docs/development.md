@@ -44,7 +44,7 @@ TypeScript 检查、前端生产构建、Go 测试命令和 MyGo vet 已通过�
 | 事件 | 自动执行 | 发布产物 |
 | --- | --- | --- |
 | push 到 `main` | macOS、Windows 分别运行现有测试和编译检查；Linux 独立验证纯浏览器测试和子路径构建 | 不打桌面安装包，不创建 Release；全部检查通过后更新 GitHub Pages |
-| push tag | 校验版本、重复执行两端 CI，成功后构建 macOS 与 Windows 安装包，统一发布到该 tag 的 GitHub Release | macOS 通用 DMG、完整 `.app` 的 ZIP、Windows x64 安装包、SHA-256 清单 |
+| push tag | 校验版本、重复执行两端 CI，成功后构建 macOS 与 Windows 安装包，统一发布到该 tag 的 GitHub Release | macOS 通用 DMG、完整 `.app` 的 ZIP、Windows x64 默认安装包及离线安装包、SHA-256 清单 |
 
 配置分别位于 [CI](../.github/workflows/ci.yml) 和 [Release](../.github/workflows/release.yml)。Release 不提供手动触发或普通分支触发入口。任一平台的检查、打包、应用启动或 Windows 安装冒烟测试失败，都不会公开新 Release；上传过程中失败则保留草稿供排查。重跑可恢复同 tag 草稿，但不会覆盖已经公开的 Release。
 
@@ -60,12 +60,15 @@ git push origin v0.1.0
 
 - `collate-0.1.0-macos-universal.dmg`：适用于 macOS 15 及以上，兼容 Apple Silicon 和 Intel，包含可拖入 Applications 的应用。
 - `collate-0.1.0-macos-universal.zip`：解压得到完整 `collate.app`，使用 `ditto` 保留结构与可执行权限。
-- `collate-0.1.0-windows-x64-setup.exe`：包含 MyGo 安装程序和微软官方 WebView2 Evergreen x64 离线安装程序；检测到缺少 WebView2 或版本低于 140 时先安装运行时，再安装应用，无需用户单独下载依赖。运行时下载只发生在构建阶段，并检查微软 Authenticode 签名。安装器沿用 MyGo 的每用户安装、快捷方式与卸载注册。
+- `collate-0.1.0-windows-x64-setup.exe`：推荐的小型安装包，包含 MyGo 安装程序与微软官方 Evergreen Bootstrapper。检测到缺少 WebView2 或版本低于 140 时自动联网下载安装运行时；已有兼容版本时不执行引导程序。安装器沿用 MyGo 的每用户安装、快捷方式与卸载注册。构建时验证微软 Authenticode 签名，并限制默认安装包不超过 30 MiB，防止误带完整离线运行时。
+- `collate-0.1.0-windows-x64-setup-offline.exe`：另行提供的离线安装包，包含完整 WebView2 Evergreen x64 运行时，可在无网络时安装。完整浏览器运行时通常占据此安装包的大部分体积。两个版本都自动安装依赖，无需用户手动配置；使用 `windows.ps1 -RuntimeMode Online|Offline` 构建。
 - `SHA256SUMS.txt`：上述三个资产的 SHA-256 校验值。
 
 PDF.js 使用带兼容性补丁的 legacy 构建，以适配系统 WebKit；macOS 包最低要求 15.0（Safari/WebKit 18）。Windows x64 使用 WebView2 140 或更新版本。
 
-安装后无需 Go、Bun 或 Node.js。Windows 最终安装包由 `scripts/release/windows-installer.nsi` 包装 MyGo 产物；`windows.ps1` 负责获取并校验离线依赖、编译安装包，`test-windows.ps1` 验证安装、应用启动和卸载。共享 WebView2 运行时在卸载 Collate 时保留，避免影响其他应用。
+安装后无需 Go、Bun 或 Node.js。Windows 最终安装包由 `scripts/release/windows-installer.nsi` 包装 MyGo 产物；`windows.ps1` 按模式获取并校验微软引导程序或离线依赖、编译安装包，`test-windows.ps1 -RuntimeMode Online|Offline` 分别验证两种安装包的安装、应用启动和卸载。共享 WebView2 运行时在卸载 Collate 时保留，避免影响其他应用。
+
+Windows 包体优化采用微软官方的 [WebView2 分发方式](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution)：默认使用小型引导程序，单独保留完整离线安装包。安装时下载微软运行时与 PDF 数据处理无关；编辑和导出仍在本机完成。macOS 使用系统 WebKit，无需捆绑 WebView2。
 
 ### 权限和首次运行限制
 

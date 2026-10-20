@@ -26,7 +26,7 @@ Preview page thumbnails, select pages in batches, and undo or redo changes. PDF 
 ## Permissions and first-launch limitations
 
 - **Browser:** open the web app in a modern desktop browser and choose local PDFs. Editing stays in browser memory; exports are downloaded to your device. No files are uploaded, and the workspace is cleared when you close or reload the page.
-- **Desktop requirements:** macOS 15+ or Windows x64. No Go, Bun, or Node.js installation is needed. The Windows installer includes an offline WebView2 Runtime installer and installs it when needed.
+- **Desktop requirements:** macOS 15+ or Windows x64. No Go, Bun, or Node.js installation is needed. The default Windows installer includes a small WebView2 bootstrapper and automatically downloads the runtime only if it is missing or too old; that step requires internet access. An optional `setup-offline.exe` includes the full runtime for offline installation.
 - **GitHub Actions:** builds require no additional signing secrets in the current configuration. Only the Release publishing job uses the built-in `GITHUB_TOKEN` with `contents: write`; the Pages deployment job uses `pages: write` and `id-token: write`; build jobs have read-only repository access. Your repository or organization must allow these Actions permissions.
 - **macOS:** the app currently uses ad-hoc signing and is not notarized by Apple. Gatekeeper may block it when first opened after downloading.
 - **Windows:** the app and installer currently have no publisher code signature. Windows may show an unknown-publisher or SmartScreen warning.
