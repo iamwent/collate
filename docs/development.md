@@ -44,6 +44,7 @@ TypeScript 检查、前端生产构建、Go 测试命令和 MyGo vet 已通过�
 | 事件 | 自动执行 | 发布产物 |
 | --- | --- | --- |
 | push 到 `main` | macOS、Windows 分别运行现有测试和编译检查；Linux 独立验证纯浏览器测试和子路径构建 | 不打桌面安装包，不创建 Release；全部检查通过后更新 GitHub Pages |
+| PR 到 `main`（包括 Dependabot） | macOS/Windows 编译测试及浏览器构建；另执行锁文件漏洞审计 | 不打安装包、不发布 Release、不部署 Pages |
 | push tag | 校验版本、重复执行两端 CI，成功后构建 macOS 与 Windows 安装包，统一发布到该 tag 的 GitHub Release | macOS 通用 DMG、完整 `.app` 的 ZIP、Windows x64 小型安装包与便携 ZIP、SHA-256 清单 |
 
 配置分别位于 [CI](../.github/workflows/ci.yml) 和 [Release](../.github/workflows/release.yml)。Release 不提供手动触发或普通分支触发入口。任一平台的检查、打包、应用启动或 Windows 安装冒烟测试失败，都不会公开新 Release；上传过程中失败则保留草稿供排查。重跑可恢复同 tag 草稿，但不会覆盖已经公开的 Release。
@@ -135,3 +136,13 @@ README 的中英文版本共用 [`docs/images/screenshot.jpg`](images/screenshot
 本地 Go 测试覆盖安装版路径不变、含空格/中文目录、整目录移动后数据保留、继承的 profile 覆盖及写入失败。Release 的 Windows 实机检查脚本 `test-windows-portable.ps1` 从不同工作目录启动真实应用，检查 WebView2 子进程的 `--user-data-dir`、实际 profile 与窗口状态文件、关闭后整目录移动与再次启动，以及原有 AppData 下的 Collate 目录未改变；失败阻止发布。脚本须在 Windows 执行，本机交叉编译或语法检查不等于该实机检查已通过。
 
 此处的便携指应用管理的数据目录可随程序移动，不承诺 Windows、原生文件对话框、杀毒软件及共享运行时不留下系统记录，也不保证 WebView2 加密 profile 跨 Windows 用户或电脑可迁移。PDF 工作台仍仅在内存中，导出位置由用户选择。
+
+## 依赖安全与 Dependabot
+
+[`.github/dependabot.yml`](../.github/dependabot.yml) 为根目录 Go modules、Bun（`package.json` + 文本 `bun.lock`）和 GitHub Actions 配置版本更新。每周一北京时间 10:00 检查，minor/patch 更新按生态分组，major 更新单独提出；不忽略安全修复、不自动合并。MyGo 的 Go 模块与前端 CLI/runtime 必须一起评估兼容性，仍需按项目维护规范审查 PR。配置须提交到默认分支并推送后生效。
+
+版本更新配置不等于已启用漏洞告警。2026-10-20 已通过 GitHub API 启用并验证本仓库的 Dependabot alerts 与 Dependabot security updates（enabled=true、paused=false）；未来迁移到其他仓库时，管理员须在 GitHub 仓库 **Settings → Advanced Security**（部分界面为 Code security）中确认 **Dependency graph、Dependabot alerts、Dependabot security updates** 已启用。告警按 GitHub 已知漏洞及依赖图更新，不受上述每周版本检查频率限制；可在仓库 Security 页查看。依赖图支持范围与自动安全修复能力随生态不同，不应把 Bun 版本更新支持视为其锁文件全部间接依赖都已受到告警覆盖。
+
+[`dependency-security.yml`](../.github/workflows/dependency-security.yml) 因此补充 `bun audit`：在 main push、指向 main 的 PR、每周定时及手动触发时审计 `bun.lock` 中的直接/间接依赖和开发依赖；发现已知漏洞或审计请求失败时工作流失败。审计不安装包、不运行安装脚本，不修改锁文件，也不上传 PDF 等用户文件。常规 CI 同样覆盖 Dependabot PR。Pages 仍只部署成功的 main push，PR 和定时审计不会部署。
+
+官方参考：[Dependabot 支持的生态](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories)、[依赖图支持范围](https://docs.github.com/en/code-security/reference/supply-chain-security/dependency-graph-supported-package-ecosystems)、[Bun audit](https://bun.com/docs/pm/cli/audit)。这些检查针对已知依赖漏洞，不能保证发现所有恶意行为或源码漏洞。
