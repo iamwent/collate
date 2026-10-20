@@ -9,6 +9,27 @@ $roots = @((Join-Path $env:APPDATA 'collate'), (Join-Path $env:LOCALAPPDATA 'col
 $profileOverride = [Environment]::GetEnvironmentVariable('WEBVIEW2_USER_DATA_FOLDER', 'Process')
 $application = $null
 
+# Check rendered page content, not merely the asynchronously created host window.
+Add-Type -AssemblyName UIAutomationClient
+Add-Type -AssemblyName UIAutomationTypes
+function Wait-PortableHome([System.Diagnostics.Process]$Application) {
+    $deadline = [DateTime]::UtcNow.AddSeconds(45)
+    $condition = [System.Windows.Automation.PropertyCondition]::new(
+        [System.Windows.Automation.AutomationElement]::NameProperty, '＋ 选择 PDF 文件')
+    do {
+        if ($Application.HasExited) { throw 'Portable app exited before its home page loaded.' }
+        $Application.Refresh()
+        try {
+            $window = [System.Windows.Automation.AutomationElement]::FromHandle($Application.MainWindowHandle)
+            if ($window -and $window.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $condition)) { return }
+        } catch [System.Windows.Automation.ElementNotAvailableException] {
+            # The WebView2 accessibility provider can change during navigation.
+        }
+        Start-Sleep -Milliseconds 250
+    } while ([DateTime]::UtcNow -lt $deadline)
+    throw 'Portable home page did not finish rendering within 45 seconds.'
+}
+
 function Snapshot-InstalledData {
     $rows = foreach ($root in $roots) {
         if (Test-Path $root) {
@@ -48,6 +69,8 @@ try {
             $folder = $moved
         }
         $profile = Join-Path $folder 'Data/LocalAppData/collate/WebView2'
+        # WebView2 appends EBWebView to the configured userDataFolder.
+        $browserData = Join-Path $profile 'EBWebView'
         $settings = Join-Path $folder 'Data/Settings/window-state.json'
         if ($iteration -eq 2 -and -not (Test-Path $settings)) { throw 'Settings did not survive the folder move.' }
         # Deliberately start from a different working directory.
@@ -68,6 +91,7 @@ try {
                 throw "WebView2 profile escaped portable folder: $($process.CommandLine)"
             }
         }
+        Wait-PortableHome $application
         # A sentinel proves the same profile survives moving the entire directory.
         $sentinel = Join-Path $profile 'collate-portable-test.txt'
         if ($iteration -eq 1) { Set-Content $sentinel 'retained' }
@@ -76,10 +100,23 @@ try {
         if (-not $application.WaitForExit(30000)) { throw 'Portable close timed out.' }
         if ($application.ExitCode -ne 0) { throw "Portable close failed: $($application.ExitCode)" }
         Wait-WebViewExit $profile
-        if (-not (Test-Path (Join-Path $profile 'Default/Preferences'))) { throw 'WebView2 did not persist its portable profile.' }
+        $preferences = Join-Path $browserData 'Default/Preferences'
+        if (-not (Test-Path $preferences -PathType Leaf)) {
+            Write-Host "Expected persisted WebView2 preferences: $preferences"
+            Get-ChildItem $profile -Recurse -Depth 3 -Name | Write-Host
+            throw 'WebView2 did not persist its portable profile.'
+        }
         if (-not (Test-Path $settings)) { throw 'Window settings were not saved inside Data.' }
         $state = Get-Content $settings -Raw | ConvertFrom-Json
         if (-not $state) { throw 'Window settings are empty.' }
+        if ($iteration -eq 1) {
+            # Seed a non-default size after the app exits. After moving, the
+            # second run must load it and save the actual window size back.
+            $state.main = @{ x = 30; y = 30; width = 900; height = 620; maximized = $false; fullScreen = $false }
+            $state | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $settings -Encoding utf8NoBOM
+        } elseif ($state.main.width -ne 900 -or $state.main.height -ne 620) {
+            throw "Window size was not restored after relocation: $($state.main.width)x$($state.main.height)"
+        }
         foreach ($dir in @('Settings', 'Cache', 'Logs', 'Temp', 'AppData', 'LocalAppData')) {
             if (-not (Test-Path (Join-Path $folder "Data/$dir") -PathType Container)) { throw "Missing portable $dir directory." }
         }

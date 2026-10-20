@@ -133,7 +133,7 @@ README 的中英文版本共用 [`docs/images/screenshot.jpg`](images/screenshot
 
 `portable.go` 在 `App.Run` 前检测 EXE 同目录的标记，将 MyGo 的用户数据、缓存、日志与临时路径，以及当前进程的 `APPDATA`、`LOCALAPPDATA`、`TEMP`、`TMP` 和 WebView2 profile 定向到 EXE 同目录的 `Data` 下。MyGo 0.5.5 的 Windows 后端独立按 `LOCALAPPDATA/collate/WebView2` 创建 profile，仅调用 `App.SetPath` 不足以改变它，因此同时配置当前进程环境；不修改系统或用户的环境变量。安装版不带标记，保持原有路径。数据目录不可写时显示错误并退出，不回退到用户目录。
 
-本地 Go 测试覆盖安装版路径不变、含空格/中文目录、整目录移动后数据保留、继承的 profile 覆盖及写入失败。Release 的 Windows 实机检查脚本 `test-windows-portable.ps1` 从不同工作目录启动真实应用，检查 WebView2 子进程的 `--user-data-dir`、实际 profile 与窗口状态文件、关闭后整目录移动与再次启动，以及原有 AppData 下的 Collate 目录未改变；失败阻止发布。脚本须在 Windows 执行，本机交叉编译或语法检查不等于该实机检查已通过。
+本地 Go 测试覆盖安装版路径不变、含空格/中文目录、整目录移动后数据保留、继承的 profile 覆盖及写入失败。Release 的 Windows 实机检查脚本 `test-windows-portable.ps1` 从不同工作目录启动真实应用，检查 WebView2 子进程的 `--user-data-dir`，通过 Windows UI Automation 等待首页的文件选择按钮渲染完成，再关闭应用并等待 WebView2 退出；检查实际 `EBWebView/Default/Preferences` 与窗口状态文件，随后写入非默认窗口尺寸，整目录移动后再次启动并验证窗口尺寸恢复，以及原有 AppData 下的 Collate 目录未改变；失败阻止发布。脚本须在 Windows 执行，本机交叉编译或语法检查不等于该实机检查已通过。
 
 此处的便携指应用管理的数据目录可随程序移动，不承诺 Windows、原生文件对话框、杀毒软件及共享运行时不留下系统记录，也不保证 WebView2 加密 profile 跨 Windows 用户或电脑可迁移。PDF 工作台仍仅在内存中，导出位置由用户选择。
 
@@ -146,3 +146,5 @@ README 的中英文版本共用 [`docs/images/screenshot.jpg`](images/screenshot
 [`dependency-security.yml`](../.github/workflows/dependency-security.yml) 因此补充 `bun audit`：在 main push、指向 main 的 PR、每周定时及手动触发时审计 `bun.lock` 中的直接/间接依赖和开发依赖；发现已知漏洞或审计请求失败时工作流失败。审计不安装包、不运行安装脚本，不修改锁文件，也不上传 PDF 等用户文件。常规 CI 同样覆盖 Dependabot PR。Pages 仍只部署成功的 main push，PR 和定时审计不会部署。
 
 官方参考：[Dependabot 支持的生态](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories)、[依赖图支持范围](https://docs.github.com/en/code-security/reference/supply-chain-security/dependency-graph-supported-package-ecosystems)、[Bun audit](https://bun.com/docs/pm/cli/audit)。这些检查针对已知依赖漏洞，不能保证发现所有恶意行为或源码漏洞。
+
+WebView2 会自动在配置的 userDataFolder 下增加 `EBWebView` 子目录，不能按普通 Chromium 布局检查根目录的 `Default/Preferences`。便携版测试应检查 `Data/LocalAppData/collate/WebView2/EBWebView/Default/Preferences`；检测到浏览器进程和原生窗口不代表首页已经加载完毕，必须先等待页面渲染，再关闭并验证落盘。
