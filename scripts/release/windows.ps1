@@ -1,7 +1,4 @@
-param(
-    [Parameter(Mandatory)][string]$Version,
-    [ValidateSet('Online', 'Offline')][string]$RuntimeMode = 'Online'
-)
+param([Parameter(Mandatory)][string]$Version)
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
@@ -14,13 +11,8 @@ $work = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $work | Out-Null
 try {
     $runtime = Join-Path $work 'webview2-setup.exe'
-    # Both are Microsoft-signed Evergreen installers. The small bootstrapper
-    # downloads the runtime only when it is missing or too old on the target PC.
-    $runtimeUri = if ($RuntimeMode -eq 'Offline') {
-        'https://go.microsoft.com/fwlink/p/?LinkId=2124701'
-    } else {
-        'https://go.microsoft.com/fwlink/p/?LinkId=2124703'
-    }
+    # Microsoft's signed bootstrapper downloads the runtime only when needed.
+    $runtimeUri = 'https://go.microsoft.com/fwlink/p/?LinkId=2124703'
     Invoke-WebRequest -Uri $runtimeUri -OutFile $runtime -MaximumRetryCount 3
     $signature = Get-AuthenticodeSignature $runtime
     if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation(?:,|$)') {
@@ -42,14 +34,13 @@ try {
             Select-Object -First 1 -ExpandProperty FullName
     }
     if (-not $compiler) { throw 'NSIS compiler was not installed by MyGo.' }
-    $suffix = if ($RuntimeMode -eq 'Offline') { '-offline' } else { '' }
-    $output = Join-Path $release "collate-$Version-windows-x64-setup$suffix.exe"
-    & $compiler '-V3' "-DAPP_VERSION=$Version" "-DAPP_INSTALLER=$inner" "-DWEBVIEW2_INSTALLER=$runtime" "-DRUNTIME_MODE=$RuntimeMode" "-DOUTPUT_FILE=$output" (Join-Path $PSScriptRoot 'windows-installer.nsi')
+    $output = Join-Path $release "collate-$Version-windows-x64-setup.exe"
+    & $compiler '-V3' "-DAPP_VERSION=$Version" "-DAPP_INSTALLER=$inner" "-DWEBVIEW2_INSTALLER=$runtime" "-DOUTPUT_FILE=$output" (Join-Path $PSScriptRoot 'windows-installer.nsi')
     if ($LASTEXITCODE -ne 0) { throw "NSIS compilation failed: $LASTEXITCODE" }
     if (-not (Test-Path $output -PathType Leaf)) { throw 'Final Windows installer was not produced.' }
     $size = (Get-Item $output).Length
-    Write-Host ("Windows {0} installer: {1:N2} MiB" -f $RuntimeMode, ($size / 1MB))
-    if ($RuntimeMode -eq 'Online' -and $size -gt 30MB) {
+    Write-Host ("Windows installer: {0:N2} MiB" -f ($size / 1MB))
+    if ($size -gt 30MB) {
         throw 'The default installer exceeds 30 MiB; check for accidentally bundled offline dependencies.'
     }
 } finally {

@@ -1,4 +1,4 @@
-; Bootstrap MyGo with a small online or full offline WebView2 installer.
+; Bootstrap MyGo with the small online WebView2 installer.
 ; The inner installer owns app files, shortcuts and uninstall registration.
 Unicode true
 ManifestDPIAware true
@@ -57,11 +57,7 @@ Section "Collate"
   Call HasWebView2
   Pop $0
   ${If} $0 != 1
-    !if "${RUNTIME_MODE}" == "Online"
-      DetailPrint "Downloading and installing Microsoft Edge WebView2 Runtime (internet required)..."
-    !else
-      DetailPrint "Installing Microsoft Edge WebView2 Runtime from the offline package..."
-    !endif
+    DetailPrint "Downloading and installing Microsoft Edge WebView2 Runtime (internet required)..."
     File /oname=webview2-setup.exe "${WEBVIEW2_INSTALLER}"
     ClearErrors
     ExecWait '"$PLUGINSDIR\webview2-setup.exe" /silent /install' $0
@@ -73,11 +69,7 @@ Section "Collate"
     Call HasWebView2
     Pop $1
     ${If} $1 != 1
-      !if "${RUNTIME_MODE}" == "Online"
-        MessageBox MB_ICONSTOP "WebView2 installation failed (exit code $0). Connect to the internet and retry, or download the offline Collate installer. Collate was not installed." /SD IDOK
-      !else
-        MessageBox MB_ICONSTOP "WebView2 Runtime installation failed (exit code $0). Collate was not installed." /SD IDOK
-      !endif
+      MessageBox MB_ICONSTOP "WebView2 installation failed (exit code $0). Connect to the internet and retry. Collate was not installed." /SD IDOK
       SetErrorLevel 1
       Abort
     ${EndIf}
