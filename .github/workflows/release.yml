@@ -109,13 +109,21 @@ jobs:
       - name: Build small Windows installer
         shell: pwsh
         run: ./scripts/release/windows.ps1 -Version $env:COLLATE_VERSION
+      - name: Build portable ZIP
+        shell: pwsh
+        run: ./scripts/release/windows-portable.ps1 -Version $env:COLLATE_VERSION
+      - name: Verify portable data paths and relocation on Windows
+        shell: pwsh
+        run: ./scripts/release/test-windows-portable.ps1 -Version $env:COLLATE_VERSION
       - name: Smoke test final installer and installed application
         shell: pwsh
         run: ./scripts/release/test-windows.ps1 -Version $env:COLLATE_VERSION
       - uses: actions/upload-artifact@v4
         with:
           name: release-windows
-          path: release/*.exe
+          path: |
+            release/*.exe
+            release/*-windows-x64-portable.zip
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
@@ -148,6 +156,7 @@ jobs:
           test -s "release/collate-${RELEASE_VERSION}-macos-universal.zip"
           test -s "release/collate-${RELEASE_VERSION}-macos-universal.dmg"
           test -s "release/collate-${RELEASE_VERSION}-windows-x64-setup.exe"
+          test -s "release/collate-${RELEASE_VERSION}-windows-x64-portable.zip"
           (cd release && sha256sum *.zip *.dmg *.exe > SHA256SUMS.txt)
           if gh release view "$RELEASE_TAG" --json isDraft > "$RUNNER_TEMP/release.json" 2>/dev/null; then
             if ! jq -e '.isDraft == true' "$RUNNER_TEMP/release.json" >/dev/null; then

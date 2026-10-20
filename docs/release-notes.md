@@ -2,6 +2,7 @@
 
 - **macOS 15+（Apple Silicon / Intel）**：下载 `macos-universal.dmg`，打开后将 `collate.app` 拖到 Applications；也可下载 `macos-universal.zip`，解压得到完整的 `.app`。ZIP 保留了应用结构和可执行权限。
 - **Windows x64（推荐）**：下载小型 `windows-x64-setup.exe`，运行安装向导。已有 WebView2 140+ 时直接安装；缺少兼容运行时时自动联网下载安装，不需要手动配置依赖。
+- **Windows x64（便携版）**：下载 `windows-x64-portable.zip`，解压到可写位置后运行 `collate.exe`；需已安装 WebView2 140+，设置与缓存保存于同目录 `Data` 下。移动或更新时保留整个目录，详见压缩包内 `README.md`。
 - 无需安装 Go、Bun 或 Node.js。SHA-256 校验值见 `SHA256SUMS.txt`。
 
 ## 当前签名状态

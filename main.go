@@ -54,8 +54,22 @@ func (Files) Save(name, data string) (bool, error) {
 }
 
 func main() {
+	portableErr := configurePortable()
 	mygo.Bind(Files{})
 	mygo.App.WhenReady(func() {
+		if portableErr != nil {
+			mygo.Dialog.Message(mygo.MessageOptions{
+				Type: mygo.MessageError, Title: "Collate Portable",
+				Message: "无法写入便携版数据目录。请将整个程序目录解压到可写位置后重试。",
+				Detail:  portableErr.Error(),
+			})
+			mygo.App.Quit()
+			return
+		}
+		if !requireWindowsWebView() {
+			mygo.App.Quit()
+			return
+		}
 		mygo.NewWindow(mygo.WindowOptions{
 			Title: "Collate · PDF 页面工具", Width: 1200, Height: 800,
 			MinWidth: 760, MinHeight: 560, BackgroundColor: "#f5f5f2",

@@ -27,6 +27,7 @@
 
 - **网页版**：使用现代桌面浏览器打开网页并选择本地 PDF，所有编辑均在浏览器内存中完成，结果下载到设备，文件不会上传。关闭或刷新网页会清空工作台，请及时导出。
 - **桌面运行要求**：macOS 15 及以上或 Windows x64，无需安装 Go、Bun 或 Node.js。Windows 默认安装包内置小型 WebView2 引导程序，仅在运行时缺失或版本过旧时自动联网补装，此步骤需要网络连接。
+- **Windows 便携版**：解压到可写目录，运行 `collate.exe`，需电脑已有 WebView2 140+，未检测到运行时时会提示并提供微软官方下载入口。应用设置、WebView2 缓存和临时文件保存在同目录 `Data` 下，移动或更新时请保留；详见[使用说明与限制](docs/windows-portable.md)。
 - **GitHub Actions**：当前配置不要求额外签名 Secrets。只有 Release 发布任务使用内置 `GITHUB_TOKEN` 的 `contents: write` 权限，Pages 部署任务使用 `pages: write` 和 `id-token: write` 权限，构建任务仅有仓库只读权限；仓库或组织须允许这些 Actions 权限。
 - **macOS**：应用当前仅使用 ad-hoc 签名，未经 Apple 公证，从互联网下载后首次打开可能被 Gatekeeper 阻止。
 - **Windows**：应用及安装包当前没有发布者代码签名，可能显示未知发布者或 SmartScreen 提示。

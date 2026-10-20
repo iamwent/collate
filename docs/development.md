@@ -44,7 +44,7 @@ TypeScript 检查、前端生产构建、Go 测试命令和 MyGo vet 已通过�
 | 事件 | 自动执行 | 发布产物 |
 | --- | --- | --- |
 | push 到 `main` | macOS、Windows 分别运行现有测试和编译检查；Linux 独立验证纯浏览器测试和子路径构建 | 不打桌面安装包，不创建 Release；全部检查通过后更新 GitHub Pages |
-| push tag | 校验版本、重复执行两端 CI，成功后构建 macOS 与 Windows 安装包，统一发布到该 tag 的 GitHub Release | macOS 通用 DMG、完整 `.app` 的 ZIP、Windows x64 小型安装包、SHA-256 清单 |
+| push tag | 校验版本、重复执行两端 CI，成功后构建 macOS 与 Windows 安装包，统一发布到该 tag 的 GitHub Release | macOS 通用 DMG、完整 `.app` 的 ZIP、Windows x64 小型安装包与便携 ZIP、SHA-256 清单 |
 
 配置分别位于 [CI](../.github/workflows/ci.yml) 和 [Release](../.github/workflows/release.yml)。Release 不提供手动触发或普通分支触发入口。任一平台的检查、打包、应用启动或 Windows 安装冒烟测试失败，都不会公开新 Release；上传过程中失败则保留草稿供排查。重跑可恢复同 tag 草稿，但不会覆盖已经公开的 Release。
 
@@ -125,3 +125,13 @@ bun run build:web
 MyGo 将 PNG 源图转换为 macOS `.icns` 和 Windows 多尺寸图标，无需手工维护 `.icns` 或 `.ico`。未使用的原始模板图标 `resources/icon.png` 已删除。
 
 README 的中英文版本共用 [`docs/images/screenshot.jpg`](images/screenshot.jpg)，使用用户提供的 macOS 应用首页截图，保留完整标题栏、底部状态栏和原始 2198×1506 像素尺寸，适度压缩为 JPEG，展示当前界面的左上角图标和底部项目链接。更新界面时，应从实际运行的页面重新截图。
+
+## Windows 便携模式
+
+[便携版说明](windows-portable.md)同时打入 ZIP。`scripts/release/windows-portable.ps1` 将原生 EXE、`collate.portable` 标记、协议与说明放入 `Collate Portable` 目录；应用前端资源嵌入 EXE，无需安装器与图标旁载文件。产物为 `collate-<版本>-windows-x64-portable.zip`，与安装包一起发布。它依赖电脑上已有的 WebView2 140+，不会自动安装运行时。`webview.go` 在创建窗口前调用 MyGo 的 `WebViewAvailable()`；未找到运行时时显示原生提示，用户可选择打开微软官网下载页面或退出，然后结束应用，避免直接创建窗口触发 panic。可用性接口不校验版本号，也不保证已安装运行时未损坏。
+
+`portable.go` 在 `App.Run` 前检测 EXE 同目录的标记，将 MyGo 的用户数据、缓存、日志与临时路径，以及当前进程的 `APPDATA`、`LOCALAPPDATA`、`TEMP`、`TMP` 和 WebView2 profile 定向到 EXE 同目录的 `Data` 下。MyGo 0.5.5 的 Windows 后端独立按 `LOCALAPPDATA/collate/WebView2` 创建 profile，仅调用 `App.SetPath` 不足以改变它，因此同时配置当前进程环境；不修改系统或用户的环境变量。安装版不带标记，保持原有路径。数据目录不可写时显示错误并退出，不回退到用户目录。
+
+本地 Go 测试覆盖安装版路径不变、含空格/中文目录、整目录移动后数据保留、继承的 profile 覆盖及写入失败。Release 的 Windows 实机检查脚本 `test-windows-portable.ps1` 从不同工作目录启动真实应用，检查 WebView2 子进程的 `--user-data-dir`、实际 profile 与窗口状态文件、关闭后整目录移动与再次启动，以及原有 AppData 下的 Collate 目录未改变；失败阻止发布。脚本须在 Windows 执行，本机交叉编译或语法检查不等于该实机检查已通过。
+
+此处的便携指应用管理的数据目录可随程序移动，不承诺 Windows、原生文件对话框、杀毒软件及共享运行时不留下系统记录，也不保证 WebView2 加密 profile 跨 Windows 用户或电脑可迁移。PDF 工作台仍仅在内存中，导出位置由用户选择。
