@@ -6,29 +6,29 @@
       "name": "collate",
       "dependencies": {
         "fflate": "^0.8.3",
-        "mygo-runtime": "^0.5.5",
+        "mygo-runtime": "^0.6.2",
         "pdf-lib": "^1.17.1",
         "pdfjs-dist": "^6.4.299",
       },
       "devDependencies": {
-        "mygo-cli": "^0.5.5",
+        "mygo-cli": "^0.6.2",
         "typescript": "^7",
         "vite": "^8",
       },
     },
   },
   "packages": {
-    "@egoist/mygo-cli-darwin-arm64": ["@egoist/mygo-cli-darwin-arm64@0.5.5", "", { "os": "darwin", "cpu": "arm64" }, "sha512-k2G3zF6bw2a0rra58KFSlzP6o9G69WPLvNBOzflphH40BOf9tZxKx4YTHujPazC6eJxnvXErMJ/vf+9nk93dsg=="],
+    "@egoist/mygo-cli-darwin-arm64": ["@egoist/mygo-cli-darwin-arm64@0.6.2", "", { "os": "darwin", "cpu": "arm64" }, "sha512-brP3JLjtgS/6Hq2LcLHRRFj1rijjqP0wUeWcMcwsHFnZ5lXTQ1CT1MPaT7TKdvpWwBLfHVlPkH1bAU8T8WIhGQ=="],
 
-    "@egoist/mygo-cli-darwin-x64": ["@egoist/mygo-cli-darwin-x64@0.5.5", "", { "os": "darwin", "cpu": "x64" }, "sha512-9+V8Ck65I4fNFCgzMeJtD8AY3EoelCNX7ShR/iJukjvrBXfTroXgCua16UBEMiLYqtTF+vxA49tLWUSEY47tOg=="],
+    "@egoist/mygo-cli-darwin-x64": ["@egoist/mygo-cli-darwin-x64@0.6.2", "", { "os": "darwin", "cpu": "x64" }, "sha512-mp/rUKGQPjud8KPfWNfxi3qxt1ryw37QiNwIvPcIYYyEyynNBfPq+2RU+PaIICKobZK6E44RDZXROUtG5Fc5aQ=="],
 
-    "@egoist/mygo-cli-linux-arm64": ["@egoist/mygo-cli-linux-arm64@0.5.5", "", { "os": "linux", "cpu": "arm64" }, "sha512-BU9At6Ji9JX9/y9bT2LK/R7UMtMwrHZ6ygg7JCMrDW7NeZZ0+vaHVp5hQFJbGK/FhmzYC/M6WMIDy+SYODCojw=="],
+    "@egoist/mygo-cli-linux-arm64": ["@egoist/mygo-cli-linux-arm64@0.6.2", "", { "os": "linux", "cpu": "arm64" }, "sha512-/vPmhe6421Ut8TMQ5n44KjiSxyFbmeNmIbzbha3n9yBPefaMICy625QIqYIMiwt3NhZ9M5FH6RK31Q5WnZEcmg=="],
 
-    "@egoist/mygo-cli-linux-x64": ["@egoist/mygo-cli-linux-x64@0.5.5", "", { "os": "linux", "cpu": "x64" }, "sha512-YQsuof6XcdMHVJFFT90aN23UxyKTxQSscvqKm6X38TPlHANkJ8AfWLEQsljOrnUjrp0S3+Fnzn0NMEbG1JGbWw=="],
+    "@egoist/mygo-cli-linux-x64": ["@egoist/mygo-cli-linux-x64@0.6.2", "", { "os": "linux", "cpu": "x64" }, "sha512-YI0AYHdTHUUT/9Lb1ZUeVQrIRRVDftpCmZvlo/IRJ81VlY89Sza0LP4YKOLFxfVQoH2vYSsj5jqhHw74sf3+TA=="],
 
-    "@egoist/mygo-cli-win32-arm64": ["@egoist/mygo-cli-win32-arm64@0.5.5", "", { "os": "win32", "cpu": "arm64" }, "sha512-LIZ8gL2c0nfwogHm6wmKKi4pPosCHFgUbl6PuuUMAkp2Nw9c/7v2kN26YG/GkIdH01UlOr2F+7OsmeAJvOz71Q=="],
+    "@egoist/mygo-cli-win32-arm64": ["@egoist/mygo-cli-win32-arm64@0.6.2", "", { "os": "win32", "cpu": "arm64" }, "sha512-Z8b/ulDUaEAikHU6WVDpQmmnSTeDM7LeXQwaV1ARUu2TZIpmz70rer0aMAAtxn2ssL3pgEgPsJRKLyrqcmOyfQ=="],
 
-    "@egoist/mygo-cli-win32-x64": ["@egoist/mygo-cli-win32-x64@0.5.5", "", { "os": "win32", "cpu": "x64" }, "sha512-u2fsXgjt1CWpK85PdgM9Yg8MfCAJ85RSRcIv69Qxu/Vljnp5Rd/v0c0kunFme4QEN9HIkmujnDj3j9aLoZf+Uw=="],
+    "@egoist/mygo-cli-win32-x64": ["@egoist/mygo-cli-win32-x64@0.6.2", "", { "os": "win32", "cpu": "x64" }, "sha512-Ne0C1flo2bQDIFI3CYOVA92JM5zWEhmA0BUDXGS+KC8Aq6HMR8XMX+/gCrfYc5qLIPptejmSfDQkIZ33YnyVSQ=="],
 
     "@napi-rs/canvas": ["@napi-rs/canvas@1.0.11", "", { "optionalDependencies": { "@napi-rs/canvas-android-arm64": "1.0.11", "@napi-rs/canvas-darwin-arm64": "1.0.11", "@napi-rs/canvas-darwin-x64": "1.0.11", "@napi-rs/canvas-linux-arm-gnueabihf": "1.0.11", "@napi-rs/canvas-linux-arm64-gnu": "1.0.11", "@napi-rs/canvas-linux-arm64-musl": "1.0.11", "@napi-rs/canvas-linux-riscv64-gnu": "1.0.11", "@napi-rs/canvas-linux-x64-gnu": "1.0.11", "@napi-rs/canvas-linux-x64-musl": "1.0.11", "@napi-rs/canvas-win32-arm64-msvc": "1.0.11", "@napi-rs/canvas-win32-x64-msvc": "1.0.11" } }, "sha512-vt5tog1cr+QKadIddGe+3LrcX0EmjEd0izF717Uwf92mBmgYfq2XRmL2r4bZU40spB69exxhrBn9I91HYEr/7w=="],
 
@@ -164,9 +164,9 @@
 
     "lightningcss-win32-x64-msvc": ["lightningcss-win32-x64-msvc@1.33.0", "", { "os": "win32", "cpu": "x64" }, "sha512-OlEICDx/Xl0FqSp4bry8zFnCvGpig3Gl4gCquvYwHuqJKEC1+n9NgDniFvqHGmMv1ZkqDJrDqKKSykTDX+ehuA=="],
 
-    "mygo-cli": ["mygo-cli@0.5.5", "", { "optionalDependencies": { "@egoist/mygo-cli-darwin-arm64": "0.5.5", "@egoist/mygo-cli-darwin-x64": "0.5.5", "@egoist/mygo-cli-linux-arm64": "0.5.5", "@egoist/mygo-cli-linux-x64": "0.5.5", "@egoist/mygo-cli-win32-arm64": "0.5.5", "@egoist/mygo-cli-win32-x64": "0.5.5" }, "bin": { "mygo": "bin/mygo.js" } }, "sha512-LkddjY8pBO9FygT6o3lG9mV2OUfq+U4a5W2REMg0zmT576MLIQ1tab9k1aNnH2H8bHTsPE5nw8QNuB1jvG5MoQ=="],
+    "mygo-cli": ["mygo-cli@0.6.2", "", { "optionalDependencies": { "@egoist/mygo-cli-darwin-arm64": "0.6.2", "@egoist/mygo-cli-darwin-x64": "0.6.2", "@egoist/mygo-cli-linux-arm64": "0.6.2", "@egoist/mygo-cli-linux-x64": "0.6.2", "@egoist/mygo-cli-win32-arm64": "0.6.2", "@egoist/mygo-cli-win32-x64": "0.6.2" }, "bin": { "mygo": "bin/mygo.js" } }, "sha512-4ke/3KaTb9XDausOy2UJAAiBm8rjjEmkJ39JVmN7CepsEjYBCh1wJGYsWhQv4uzFbHmKSqE+yepYff8KYtGv/g=="],
 
-    "mygo-runtime": ["mygo-runtime@0.5.5", "", {}, "sha512-51cwqDKMW10f0YjuoTfpd3rp3lFhP9sofSEKysqkIhRk8gheAqDyfDOhG51SCKRdJGvJDYUNpjbTe1SRxKP7Mw=="],
+    "mygo-runtime": ["mygo-runtime@0.6.2", "", {}, "sha512-kvo3LiwaZqfPKCkLUAr2YF0giqWL4FOIV4o/Ug1ofctEIJFLtomskBe5PZK4Yciv/YWXC8pbP36bcSTIhZBd2Q=="],
 
     "nanoid": ["nanoid@3.3.20", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ=="],
 
@@ -192,6 +192,6 @@
 
     "typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
 
-    "vite": ["vite@8.3.4", "", { "dependencies": { "lightningcss": "^1.33.0", "picomatch": "^4.0.7", "postcss": "^8.5.29", "rolldown": "~1.2.12", "tinyglobby": "^0.2.17" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "@vitejs/devtools": "^0.7.1", "esbuild": "^0.27.0 || ^0.28.0", "jiti": ">=1.21.0", "less": "^4.0.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "@vitejs/devtools", "esbuild", "jiti", "less", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-IftLE8phJhdNRIGNEV4JCCvfNScoZQVfcXaN8TQropWGJtOHcu+iAB9pHcuGvmEb/kddw0LBe/jS8ztdC6xdiQ=="],
+    "vite": ["vite@8.3.5", "", { "dependencies": { "lightningcss": "^1.33.0", "picomatch": "^4.0.7", "postcss": "^8.5.30", "rolldown": "~1.2.14", "tinyglobby": "^0.2.17" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "@vitejs/devtools": "^0.7.1 || ^0.8.0", "esbuild": "^0.27.0 || ^0.28.0", "jiti": ">=1.21.0", "less": "^4.0.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "@vitejs/devtools", "esbuild", "jiti", "less", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-z1YpjieJ9g0ebTmQpLBv/oq9E3F9EIlOe+7LahW8SrE3LTiG3udBRUXQOlYXP9b+IC2q2phHeVxj9xGlw34OEQ=="],
   }
 }
